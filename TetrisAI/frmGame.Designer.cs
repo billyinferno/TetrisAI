@@ -28,20 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmGame));
+            this.imgTetris = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
+            // 
+            // imgTetris
+            // 
+            this.imgTetris.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgTetris.ImageStream")));
+            this.imgTetris.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgTetris.Images.SetKeyName(0, "bg");
+            this.imgTetris.Images.SetKeyName(1, "1");
+            this.imgTetris.Images.SetKeyName(2, "2");
+            this.imgTetris.Images.SetKeyName(3, "3");
+            this.imgTetris.Images.SetKeyName(4, "4");
+            this.imgTetris.Images.SetKeyName(5, "5");
+            this.imgTetris.Images.SetKeyName(6, "6");
+            this.imgTetris.Images.SetKeyName(7, "7");
             // 
             // frmGame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(433, 658);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "frmGame";
             this.Text = "Tetris AI";
+            this.Load += new System.EventHandler(this.frmGame_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+        private System.Windows.Forms.ImageList imgTetris;
     }
 }
 

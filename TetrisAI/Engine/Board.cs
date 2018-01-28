@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TetrisAI.Globals;
 
 namespace TetrisAI.Engine
 {
@@ -12,8 +13,8 @@ namespace TetrisAI.Engine
         public int[,] MergeBoard { get; private set; }
         public int[,] DiffBoard { get; private set; }
 
-        private int x;
-        private int y;
+        public int x;
+        public int y;
 
         private Shape.I TetrominoI;
         private Shape.J TetrominoJ;
@@ -81,6 +82,22 @@ namespace TetrisAI.Engine
                     }
                 }
             }
+        }
+
+        public bool IsGameOver()
+        {
+            // check whether there are value on the top of the board array
+            for (int x = 0; x < this.x; x++)
+            {
+                if (this.CurrentBoard[x, 0] > 0)
+                {
+                    // game over!
+                    return true;
+                }
+            }
+
+            // default to return false
+            return false;
         }
     }
 }

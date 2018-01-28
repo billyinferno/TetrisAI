@@ -17,7 +17,7 @@ namespace TetrisAI
         Engine.Board clsBoard = new Engine.Board(10, 16);
 
         // create a shape
-        Engine.Shape.T clsI = new Engine.Shape.T();
+        Engine.Shape.J clsI = new Engine.Shape.J();
 
         public frmGame()
         {

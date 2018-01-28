@@ -56,7 +56,7 @@ namespace TetrisAI.Engine.Shape
             //   +-+-+-+
             this.ShapeArray[1, 1, 0] = 1;
             this.ShapeArray[1, 1, 1] = 1;
-            this.ShapeArray[1, 1, 2] = 1;
+            this.ShapeArray[1, 2, 1] = 1;
             this.ShapeArray[1, 2, 2] = 1;
             this.ShapeOffsetX[1] = 1;
             this.ShapeOffsetY[1] = 0;

@@ -56,5 +56,45 @@ namespace TetrisAI.Engine.Shape
             // set to the first rotation of the tetromino
             this.CurrentRotation = 0;
         }
+
+        public override int DistanceToLand(int BoardY, int[,] CurrentBoard)
+        {
+            int NearestLandPosition = -1;
+
+            // botom position will always going to be 2
+            int BottomPos = 2;
+
+            // loop for all the width of the array
+            for (int i = 0; i < this.MaxX; i++)
+            {
+                // check whether this bottom position is "1", if yes then check on the
+                // board, what is nearest land from this position
+                if (this.ShapeArray[this.CurrentRotation, i, BottomPos] == 1)
+                {
+                    // check from this pos Y to bottom
+                    for (int j = (this.PosY + this.ShapeOffsetY[this.CurrentRotation]); j < BoardY; j++)
+                    {
+                        // check whether the board is more than 0?
+                        if (CurrentBoard[(this.PosX + this.ShapeOffsetX[this.CurrentRotation]), j] > 0)
+                        {
+                            // check whether this is more than current nearest land position?
+                            if (j > NearestLandPosition)
+                            {
+                                NearestLandPosition = j;
+                            }
+                        }
+                    }
+                }
+            }
+            // if nearest position is still -1, it means that there are no land!
+            // so just put it as BoardY!
+            if (NearestLandPosition < 0)
+            {
+                NearestLandPosition = (BoardY - this.ShapeHeight[this.CurrentRotation]);
+            }
+
+            // return the nearest land position
+            return NearestLandPosition;
+        }
     }
 }

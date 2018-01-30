@@ -26,7 +26,7 @@ namespace TetrisAI.Engine
             // generate the block array that will be put on the BoardPanel
             this.BoardPanel = new Panel
             {
-                Size = new Size(191, 305),
+                Size = new Size(((BoardX * 19) + 20), ((BoardY * 19) + 20)),
                 Location = new Point(12, 12),
                 BackColor = Color.Transparent
             };

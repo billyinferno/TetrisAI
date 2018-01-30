@@ -48,6 +48,7 @@
     <Compile Include="AI\TetrisAI.cs" />
     <Compile Include="Engine\Board.cs" />
     <Compile Include="Engine\Core\Tetromino.cs" />
+    <Compile Include="Engine\Game.cs" />
     <Compile Include="Engine\Render.cs" />
     <Compile Include="Engine\Shape\I.cs" />
     <Compile Include="Engine\Shape\J.cs" />

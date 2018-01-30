@@ -232,6 +232,26 @@ namespace TetrisAI.Engine.Core
             }
         }
 
+        public bool MoveDrop(int NumDrop, int BoardX, int BoardY, int[,] CurrentBoard, int[,] MergeBoard)
+        {
+            int i = 0;
+            while (i < NumDrop)
+            {
+                // move the piece
+                if (!this.Move(StaticData.MoveType.MoveDown, BoardX, BoardY, CurrentBoard, MergeBoard))
+                {
+                    // move is finished
+                    return false;    
+                }
+
+                // next drop
+                i += 1;
+            }
+
+            // defaulted to return false
+            return false;
+        }
+
         private bool MoveLeft(int BoardX, int BoardY, int[,] CurrentBoard, int[,] MergeBoard)
         {
             // check whether we can move left the shape on the board or not?
@@ -344,6 +364,11 @@ namespace TetrisAI.Engine.Core
 
             // default to return false
             return false;
+        }
+
+        public virtual int DistanceToLand(int BoardY, int[,] CurrentBoard)
+        {
+            throw new NotImplementedException("Distance To Land function is not implemented on Tetromino class.");
         }
 
         public void JoinShapeToBoard(int [,] CurrentBoard)

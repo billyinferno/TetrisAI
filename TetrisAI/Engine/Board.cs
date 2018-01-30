@@ -35,6 +35,9 @@ namespace TetrisAI.Engine
         public int Score { get; private set; }
         private bool PreviousIsTetris;
 
+        public AI.TetrisAI GameAI { get; private set; }
+        public bool IsAIEnabled { get; private set; }
+
         public Board(int X, int Y)
         {
             // set current board x and y
@@ -63,8 +66,22 @@ namespace TetrisAI.Engine
             this.TetrominoT = new Shape.T();
             this.TetrominoZ = new Shape.Z();
 
+            // generate the AI class
+            this.GameAI = new AI.TetrisAI(X, Y);
+            this.IsAIEnabled = false;
+
             // initialize the board
             this.InitializeBoard();
+        }
+
+        public void EnableAI()
+        {
+            this.IsAIEnabled = true;
+        }
+
+        public void DisableAI()
+        {
+            this.IsAIEnabled = false;
         }
 
         public void InitializeBoard()
@@ -150,6 +167,52 @@ namespace TetrisAI.Engine
                 case 7:
                     this.TetrominoZ.JoinShapeToBoard(this.MergeBoard);
                     break;
+            }
+        }
+
+        public void CheckAI()
+        {
+            int i;
+            // check if this is AI enable
+            if (this.IsAIEnabled)
+            {
+                // check whether we got the location for PutX and PutY
+                if (this.GameAI.PutX >= 0 && this.GameAI.PutY >= 0)
+                {
+                    for (i = 0; i < this.GameAI.PutRotation; i++)
+                    {
+                        this.RotatePiece(StaticData.RotationType.RotateRight);
+                        this.CompareBoard();
+                    }
+
+                    // put this piece to the board
+                    this.CopyMergeToPrevMerge();
+                    switch (this.CurrentTetromino)
+                    {
+                        case 1:
+                            this.TetrominoI.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 2:
+                            this.TetrominoJ.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 3:
+                            this.TetrominoL.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 4:
+                            this.TetrominoO.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 5:
+                            this.TetrominoS.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 6:
+                            this.TetrominoT.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                        case 7:
+                            this.TetrominoZ.PutTetromino(this.GameAI.PutX, this.GameAI.PutY, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                            break;
+                    }
+                    this.CompareBoard();
+                }
             }
         }
 
@@ -352,6 +415,17 @@ namespace TetrisAI.Engine
                 this.GenerateTetrominoBag();
             }
 
+            // check whether we got AI enabled or not?
+            if (this.IsAIEnabled)
+            {
+                // get the location of where we should put the piece from AI
+                this.GameAI.GetBestPosition(PieceValue, this.CurrentBoard);
+
+#if DEBUG
+                Console.WriteLine("AI Suggested Location: " + this.GameAI.PutX.ToString() + "," + this.GameAI.PutY.ToString() + ", Rotation : " + this.GameAI.PutRotation);
+#endif
+            }
+
             // return the piece value
             return PieceValue;
         }
@@ -525,6 +599,17 @@ namespace TetrisAI.Engine
                 {
                     this.PrevMergeBoard[i, j] = this.MergeBoard[i, j];
                     this.MergeBoard[i, j] = this.CurrentBoard[i, j];
+                }
+            }
+        }
+
+        private void CopyCurrentToPrevMerge()
+        {
+            for (int i = 0; i < this.x; i++)
+            {
+                for (int j = 0; j < this.y; j++)
+                {
+                    this.PrevMergeBoard[i, j] = this.CurrentBoard[i, j];
                 }
             }
         }

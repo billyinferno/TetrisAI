@@ -58,7 +58,7 @@ namespace TetrisAI.Engine
                 this.GameBoard.GetPieceFromBag();
 
                 // compare the difference between current merge board with current board
-                this.GameBoard.CompareBoard(); // TODO:comparison should be between Prev Merge with Current Merge
+                this.GameBoard.CompareBoard();
                 this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
 
                 // check whether this is game over or not?
@@ -68,11 +68,18 @@ namespace TetrisAI.Engine
                 }
                 else
                 {
+                    // check AI
+                    //this.GameBoard.CheckAI();
+
+                    // allowed the key press now
                     this.KeyPressAllowed = true;
                 }
             }
             else
             {
+                // no key press is allowed now
+                this.KeyPressAllowed = false;
+
                 // move the piece down
                 this.GameBoard.MovePiece(Globals.StaticData.MoveType.MoveDown);
 
@@ -82,7 +89,16 @@ namespace TetrisAI.Engine
 
                 // reset the frame back into 0
                 this.KeyPressAllowed = true;
+
+                // key press allowed again once we finished moved the tetromino down
+                this.KeyPressAllowed = true;
             }
+        }
+
+        public void SetInterval(double Interval)
+        {
+            // set current game timer interval from other class/form
+            this.GameTimer.Interval = Interval;
         }
 
         public void GameOver()
@@ -108,12 +124,19 @@ namespace TetrisAI.Engine
             // draw the current board
             this.GameRender.DrawBoard(this.GameBoard.CurrentBoard);
 
+            // enabled AI by default
+            // TODO:
+            this.GameBoard.EnableAI();
+
             // get the current piece from bag
             this.GameBoard.GetPieceFromBag();
 
             // compare the difference between current merge board with current board
             this.GameBoard.CompareBoard();
             this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
+
+            // check AI
+            //this.GameBoard.CheckAI();
 
             // enable the key press
             this.KeyPressAllowed = true;
@@ -141,8 +164,10 @@ namespace TetrisAI.Engine
             {
                 if (this.KeyPressAllowed)
                 {
-                    // get the input key from FORM and passed it to the
-                    // GameBoard
+                    // disable the key press first until we finished the function
+                    this.KeyPressAllowed = false;
+
+                    // get the input key from FORM and passed it to the GameBoard
                     switch (input)
                     {
                         case Keys.J:
@@ -183,8 +208,15 @@ namespace TetrisAI.Engine
                             break;
                         case Keys.S:
                             // move down
+                            this.GameBoard.MovePiece(Globals.StaticData.MoveType.MoveDown);
+                            // compare the board and draw the diff
+                            this.GameBoard.CompareBoard();
+                            this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
                             break;
                     }
+
+                    // enable again the key
+                    this.KeyPressAllowed = true;
                 }
 #if DEBUG
                 // for debug we will print whether the key is still locked

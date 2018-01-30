@@ -81,6 +81,19 @@ namespace TetrisAI.Engine.Core
             throw new NotImplementedException("The Reset function is not implemented on Tetromino Class.");
         }
 
+        public void SetCurrentRotation(int RotationNumber)
+        {
+            if (RotationNumber > (this.MaxRotation - 1))
+            {
+                this.CurrentRotation = 0;
+            }
+
+            if (RotationNumber < 0)
+            {
+                this.CurrentRotation = this.MaxRotation - 1;
+            }
+        }
+
         public bool Rotate(StaticData.RotationType rt, int BoardX, int BoardY, int[,] CurrentBoard, int[,] MergeBoard)
         {
             // first copy the CurrentBoard to the MergeBoard
@@ -321,6 +334,28 @@ namespace TetrisAI.Engine.Core
             return true;
         }
 
+        public bool PutTetromino(int PutX, int PutY, int BoardX, int BoardY, int[,] CurrentBoard, int[,] MergeBoard)
+        {
+            // first let's copy the CurrentBoard into MergeBoard
+            this.CopyBoard(BoardX, BoardY, CurrentBoard, MergeBoard);
+
+            // check whether the shape is out of boundaries or not for this position
+            if (this.IsOutBoundaries(PutX, PutY, BoardX, BoardY, MergeBoard))
+            {
+                // shape is out of boundaries
+                // just use previous shape location and put it on the merge board
+                this.MergeShapeToBoard(BoardX, BoardY, CurrentBoard, MergeBoard);
+                return false;
+            }
+
+            // set this is the new X and Y position of the Tetromino
+            this.PosX = PutX;
+            this.PosY = PutY;
+
+            // default the return value into true
+            return true;
+        }
+
         public bool IsPlanted(int BoardX, int BoardY, int[,] CurrentBoard)
         {
             // for is planted function, we can just check whether we can still move down again or not?
@@ -418,7 +453,7 @@ namespace TetrisAI.Engine.Core
             }
         }
 
-        private bool IsOutBoundaries(int PosX, int PosY, int BoardX, int BoardY, int[,] MergeBoard)
+        public bool IsOutBoundaries(int PosX, int PosY, int BoardX, int BoardY, int[,] MergeBoard)
         {
             // check whether all the board is empty for this move or not?
             for (int i = 0; i < this.MaxX; i++)

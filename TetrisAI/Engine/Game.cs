@@ -14,8 +14,6 @@ namespace TetrisAI.Engine
         public Render GameRender { get; private set; }
 
         private System.Timers.Timer GameTimer;
-        private int Frame;
-        private int MaxFrame;
         private int Gravity;
 
         private bool IsGameStart;
@@ -28,9 +26,8 @@ namespace TetrisAI.Engine
             this.GameRender = new Render(X, Y, ImageData);
 
             // initialize the timer
-            this.Frame = 0;
             this.GameTimer = new System.Timers.Timer();
-            this.GameTimer.Interval = 15;
+            this.GameTimer.Interval = 1000;
             this.GameTimer.Elapsed += OnTimedEvent;
 
             // initialize the game start indicator into false
@@ -39,57 +36,52 @@ namespace TetrisAI.Engine
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            // count the frame
-            this.Frame += 1;
-
             // check whether our piece is planted or not?
             if (this.GameBoard.IsPlanted())
             {
-                // we will only check until frame 15 for the locking delay
-                if (this.Frame >= 15)
+                // no key press is allowed now
+                this.KeyPressAllowed = false;
+
+                // join the shape with current board
+                this.GameBoard.JoinPieceToCurrent();
+
+                // check if we got line finished?
+                if (this.GameBoard.CheckLine())
                 {
-                    // no key press is allowed now
-                    this.KeyPressAllowed = false;
-
-                    // join the shape with current board
-                    this.GameBoard.JoinPieceToCurrent();
-
-                    // get the current piece from bag
-                    this.GameBoard.GetPieceFromBag();
-
-                    // compare the difference between current merge board with current board
-                    this.GameBoard.CompareBoard(); // TODO:comparison should be between Prev Merge with Current Merge
+                    // got finisihed line, compare the current merge board and previous merge board
+                    // and render it to the screen
+                    this.GameBoard.CompareBoard();
                     this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
+                }
 
-                    // set the frame back into 0
-                    this.Frame = 0;
+                // get the current piece from bag
+                this.GameBoard.GetPieceFromBag();
 
-                    // check whether this is game over or not?
-                    if (this.GameBoard.IsGameOver())
-                    {
-                        this.GameOver();
-                    }
-                    else
-                    {
-                        this.KeyPressAllowed = true;
-                    }
+                // compare the difference between current merge board with current board
+                this.GameBoard.CompareBoard(); // TODO:comparison should be between Prev Merge with Current Merge
+                this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
+
+                // check whether this is game over or not?
+                if (this.GameBoard.IsGameOver())
+                {
+                    this.GameOver();
+                }
+                else
+                {
+                    this.KeyPressAllowed = true;
                 }
             }
             else
             {
-                if (this.Frame >= this.MaxFrame)
-                {
-                    // move the piece down
-                    this.GameBoard.MovePiece(Globals.StaticData.MoveType.MoveDown);
+                // move the piece down
+                this.GameBoard.MovePiece(Globals.StaticData.MoveType.MoveDown);
 
-                    // draw the current diff board
-                    this.GameBoard.CompareBoard();
-                    this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
+                // draw the current diff board
+                this.GameBoard.CompareBoard();
+                this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
 
-                    // reset the frame back into 0
-                    this.Frame = 0;
-                    this.KeyPressAllowed = true;
-                }
+                // reset the frame back into 0
+                this.KeyPressAllowed = true;
             }
         }
 
@@ -106,7 +98,6 @@ namespace TetrisAI.Engine
         {
             // start the game
             this.IsGameStart = true;
-            this.MaxFrame = 60;
 
             // reset the board
             this.GameBoard.InitializeBoard();
@@ -156,12 +147,25 @@ namespace TetrisAI.Engine
                     {
                         case Keys.J:
                             // rotation left
+                            this.GameBoard.RotatePiece(Globals.StaticData.RotationType.RotateLeft);
+                            // compare the board and draw the diff
+                            this.GameBoard.CompareBoard();
+                            this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
                             break;
                         case Keys.K:
                             // rotation right
+                            this.GameBoard.RotatePiece(Globals.StaticData.RotationType.RotateRight);
+                            // compare the board and draw the diff
+                            this.GameBoard.CompareBoard();
+                            this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
                             break;
                         case Keys.L:
                             // hard drop
+                            this.GameBoard.HardDrop();
+                            // compare the board and draw the diff
+                            this.GameBoard.CompareBoard();
+                            this.GameRender.DrawBoard(this.GameBoard.DiffBoard);
+                            // do not disable the key press to perform the lock delay
                             break;
                         case Keys.A:
                             // move left

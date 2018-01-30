@@ -33,6 +33,7 @@ namespace TetrisAI.Engine
 
         public int Level { get; private set; }
         public int Score { get; private set; }
+        private bool PreviousIsTetris;
 
         public Board(int X, int Y)
         {
@@ -82,6 +83,7 @@ namespace TetrisAI.Engine
             // initialize the score into 0
             this.Score = 0;
             this.Level = 1;
+            this.PreviousIsTetris = false;
 
             // initialize all the tetromino piece
             this.TetrominoI.Reset();
@@ -95,8 +97,8 @@ namespace TetrisAI.Engine
 
         public void CompareBoard()
         {
-            // we will compare the CurrentBoard and MergeBoard and give the
-            // result on the DiffBoard array.
+            // we will compare the Previous Merger Board and Current Merge Board and give
+            // the result on the DiffBoard array.
             for (int i = 0; i < x; i++)
             {
                 for (int j = 0; j < y; j++)
@@ -176,13 +178,46 @@ namespace TetrisAI.Engine
             return false;
         }
 
+        public void RotatePiece(StaticData.RotationType rt)
+        {
+            // copy the current merge board to the previous merge board.
+            // so later in the diff board we will get the correct data, which block we need to update?
+            this.CopyMergeToPrevMerge();
+
+            // check which tetromino will be performed, and rotate the piece
+            switch (this.CurrentTetromino)
+            {
+                case 1:
+                    this.TetrominoI.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 2:
+                    this.TetrominoJ.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 3:
+                    this.TetrominoL.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 4:
+                    this.TetrominoO.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 5:
+                    this.TetrominoS.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 6:
+                    this.TetrominoT.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 7:
+                    this.TetrominoZ.Rotate(rt, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+            }
+        }
+
         public void MovePiece(StaticData.MoveType mv)
         {
             // copy the current merge board to the previous merge board.
             // so later in the diff board we will get the correct data, which block we need to update?
             this.CopyMergeToPrevMerge();
 
-            // check which tetromino will be performed, and move down the piece
+            // check which tetromino will be performed, and move the piece
             switch (this.CurrentTetromino)
             {
                 case 1:
@@ -205,6 +240,39 @@ namespace TetrisAI.Engine
                     break;
                 case 7:
                     this.TetrominoZ.Move(mv, this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+            }
+        }
+
+        public void HardDrop()
+        {
+            // copy the current merge board to the previous merge board.
+            // so later in the diff board we will get the correct data, which block we need to update?
+            this.CopyMergeToPrevMerge();
+
+            // check which tetromino will be performed, and move the piece
+            switch (this.CurrentTetromino)
+            {
+                case 1:
+                    this.TetrominoI.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 2:
+                    this.TetrominoJ.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 3:
+                    this.TetrominoL.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 4:
+                    this.TetrominoO.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 5:
+                    this.TetrominoS.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 6:
+                    this.TetrominoT.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
+                    break;
+                case 7:
+                    this.TetrominoZ.MoveDrop(this.TetrominoI.DistanceToLand(this.y, this.CurrentBoard), this.x, this.y, this.CurrentBoard, this.MergeBoard);
                     break;
             }
         }
@@ -321,10 +389,13 @@ namespace TetrisAI.Engine
             }
         }
 
-        public void CheckLine()
+        public bool CheckLine()
         {
             bool ClearLine;
             int LineTotal = 0;
+
+            // copy current board to merge board
+            this.CopyCurrentToMerge();
 
             // check whether we have complete line on the board or not?
             for (int y = 0; y < this.y; y++)
@@ -351,9 +422,41 @@ namespace TetrisAI.Engine
             // check how many line we cleared
             if (LineTotal > 0)
             {
-                // compute the score based on the standard tetris game scoring
-                // TODO:
+                // compute the score based on the standard tetris game scoring and return true
+                // to the caller, so we knew whether we need to refresh the display or not?
+                switch (LineTotal)
+                {
+                    case 1:
+                        this.Score += (100 * this.Level);
+                        this.PreviousIsTetris = false;
+                        break;
+                    case 2:
+                        this.Score += (300 * this.Level);
+                        this.PreviousIsTetris = false;
+                        break;
+                    case 3:
+                        this.Score += (500 * this.Level);
+                        this.PreviousIsTetris = false;
+                        break;
+                    case 4:
+                        if (this.PreviousIsTetris)
+                        {
+                            this.Score += (1200 * this.Level);
+                        }
+                        else
+                        {
+                            this.Score += (800 * this.Level);
+                            this.PreviousIsTetris = true;
+                        }
+                        break;
+                }
+
+                // refresh the display!
+                return true;
             }
+
+            // defaulted to return false
+            return false;
         }
 
         private void PopLine(int PopY)
@@ -364,6 +467,7 @@ namespace TetrisAI.Engine
                 {
                     // move the board from previous line to this line
                     this.CurrentBoard[x, y] = this.CurrentBoard[x, y - 1];
+                    this.MergeBoard[x, y] = this.MergeBoard[x, y - 1];
                 }
             }
 
